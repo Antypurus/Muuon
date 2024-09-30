@@ -1,4 +1,7 @@
 //import code from './shaders.wgsl.js'
+
+export {}
+
 if(!navigator.gpu)
 {
     console.log("WebGPU Not Supported");
@@ -8,7 +11,7 @@ let adapter = await navigator.gpu.requestAdapter();
 let device = await adapter?.requestDevice();
 if(!device)
 {
-    console.log("WebGPU Device Coult Not Be Acquire " * device);
+    console.log("WebGPU Device Coult Not Be Acquire");
 }
 else
 {
