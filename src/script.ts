@@ -52,9 +52,11 @@ const vertexBufferLayout: GPUVertexBufferLayout = {
 const shaderModule = device.createShaderModule({
     label: "Cell Shader",
     code: `
+    @group(0) @binding(0) var<uniform> grid: vec2f;
+
     @vertex
     fn vertexMain(@location(0) pos: vec2f) -> @builtin(position) vec4f {
-        return vec4f(pos.x, pos.y, 0.0f, 1.0f);
+        return vec4f(pos / grid, 0, 1);
     }
 
     @fragment
@@ -81,6 +83,26 @@ const graphicsPipeline = device.createRenderPipeline({
     },
 })
 
+const GRID_SIZE = 5;
+const uniformValueArray = new Float32Array([GRID_SIZE, GRID_SIZE]);
+const uniformBuffer = device.createBuffer({
+    label: "uniform buffer",
+    size: uniformValueArray.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+});
+device.queue.writeBuffer(uniformBuffer, 0, uniformValueArray);
+
+const bindGroup = device.createBindGroup({
+    label: "cell shader bind group",
+    layout: graphicsPipeline.getBindGroupLayout(0),
+    entries: [{
+        binding: 0,
+        resource: {
+            buffer: uniformBuffer
+        },
+    }],
+});
+
 const renderpass = command_list.beginRenderPass({
     colorAttachments: [{
         view: context.getCurrentTexture().createView(),
@@ -92,7 +114,8 @@ const renderpass = command_list.beginRenderPass({
 
 renderpass.setPipeline(graphicsPipeline);
 renderpass.setVertexBuffer(0, vertexBuffer);
-renderpass.draw(vertices.length/2);
+renderpass.setBindGroup(0, bindGroup);
+renderpass.draw(vertices.length / 2);
 
 renderpass.end();
 device.queue.submit([command_list.finish()]);
