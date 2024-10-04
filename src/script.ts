@@ -55,8 +55,11 @@ const shaderModule = device.createShaderModule({
     @group(0) @binding(0) var<uniform> grid: vec2f;
 
     @vertex
-    fn vertexMain(@location(0) pos: vec2f) -> @builtin(position) vec4f {
-        return vec4f(pos / grid, 0, 1);
+    fn vertexMain(@location(0) pos: vec2f,
+                  @builtin(instance_index) instance: u32) 
+        -> @builtin(position) vec4f 
+    {
+        return vec4f((pos) / grid, 0, 1) + vec4f(f32(instance) / grid.x, f32(instance) / grid.y, 0, 0);
     }
 
     @fragment
@@ -115,7 +118,7 @@ const renderpass = command_list.beginRenderPass({
 renderpass.setPipeline(graphicsPipeline);
 renderpass.setVertexBuffer(0, vertexBuffer);
 renderpass.setBindGroup(0, bindGroup);
-renderpass.draw(vertices.length / 2);
+renderpass.draw(vertices.length / 2, GRID_SIZE * GRID_SIZE);
 
 renderpass.end();
 device.queue.submit([command_list.finish()]);
