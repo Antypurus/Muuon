@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
-    "module": "ES2022",
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-jsx",
+        "moduleResolution": "bundler",
     "rootDir": "./src",
-    "outDir": "./out",
+    "outDir": "./dist",
     "types": ["@webgpu/types"]
   },
   "include": ["src/**/*"]
